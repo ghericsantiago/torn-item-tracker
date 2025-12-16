@@ -1,0 +1,190 @@
+
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-chart-line"></i>Item Market Analyzer</h1>
+            <p>Visualize and analyze item market data with interactive charts and filters</p>
+        </header>
+
+        <div class="dashboard">
+            <div class="filters">
+                <h2><i class="fas fa-filter"></i> Data Filters</h2>
+
+                <div class="filter-group">
+                    <label for="startDate"><i class="far fa-calendar"></i> Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+
+                <div class="filter-group">
+                    <label for="endDate"><i class="far fa-calendar"></i> End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+
+                <div class="filter-group date-navigation">
+                    <button id="prevDay" class="nav-btn"><i class="fas fa-chevron-left"></i> Prev</button>
+                    <button id="nextDay" class="nav-btn">Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+
+                <div class="filter-group" id="timePickerGroup">
+                    <label for="startTime"><i class="far fa-clock"></i> Start Time</label>
+                    <input type="time" id="startTime" step="60" value="00:00">
+
+                    <label for="endTime" style="margin-top: 10px;"><i class="far fa-clock"></i> End Time</label>
+                    <input type="time" id="endTime" step="60" value="23:59">
+                </div>
+
+                <div class="filter-group autocomplete">
+                    <label for="itemName"><i class="fas fa-tag"></i> Item Name</label>
+                    <input type="text" id="itemName" placeholder="Enter item name">
+                </div>
+
+                <div class="filter-group">
+                    <label for="itemId"><i class="fas fa-barcode"></i> Item ID</label>
+                    <input type="number" id="itemId" placeholder="Enter item ID" inputmode="numeric">
+                </div>
+
+                <button id="applyFilters"><i class="fas fa-sync-alt"></i> Apply Filters</button>
+                <button id="autoRefreshToggle" class="btn">
+                    <i class="fas fa-sync-alt"></i> Enable Auto-Refresh
+                </button>
+                <button id="resetFilters"><i class="fas fa-undo"></i> Reset Filters</button>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2><i class="fas fa-chart-bar"></i> Price Analysis</h2>
+                    <div class="timeframe-selector">
+                        <button class="timeframe-btn" data-timeframe="day">1 Day</button>
+                        <button class="timeframe-btn" data-timeframe="1h">1 Hour</button>
+                        <button class="timeframe-btn" data-timeframe="30m">30 Mins</button>
+                        <button class="timeframe-btn active" data-timeframe="15m">15 Mins</button>
+                        <button class="timeframe-btn" data-timeframe="5m">5 Mins</button>
+                        <button class="timeframe-btn" data-timeframe="1m">1 Min</button>
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active" data-chart="line">Line Chart</div>
+                        <div class="tab" data-chart="bar">Bar Chart</div>
+                        <div class="tab" data-chart="scatter">Scatter Plot</div>
+                        <div class="tab" data-chart="candlestick">Candlestick</div>
+                    </div>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="priceChart"></canvas>
+                    <div id="candlestickChart" style="width:100%; height:100%; display:none;"></div>
+                    <div class="status" id="chartStatus">Nothing Here. Add an Item to monitor
+                    &nbsp;<a target="_blank" href="https://gvsantiago-tech-dev-ed.my.site.com/tornitems/s/">here</a></div>
+                </div>
+
+                <div class="toggle-table">
+                    <button class="toggle-btn" id="toggleTable">
+                        <i class="fas fa-table"></i> Show Data Table
+                    </button>
+                </div>
+
+                <div class="data-table" id="dataTable">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Item ID</th>
+                                <th>Name</th>
+                                <th>Average Price ($)</th>
+                                <th>Price ($)</th>
+                                <th>Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Table rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add the calculator toggle button -->
+    <button class="calculator-toggle" id="calculatorToggle">
+        <i class="fas fa-calculator"></i>
+    </button>
+
+    <!-- Add the calculator sidebar -->
+    <div class="calculator-sidebar" id="calculatorSidebar">
+        <div class="calculator-container">
+            <h1><i class="fas fa-calculator"></i> Profit Calculator</h1>
+
+            <div class="form-group">
+                <label for="buyPrice">Buy Price (₱)</label>
+                <input type="number" id="buyPrice" placeholder="Enter amount you paid" step="0.01" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="transactionFee">Transaction Fee (%)</label>
+                <input type="number" id="transactionFee" placeholder="Enter transaction fee percentage" step="0.01"
+                    min="0" max="100" value="5">
+            </div>
+
+            <div class="form-group">
+                <label for="targetPrice">Target Selling Price (₱)</label>
+                <input type="number" id="targetPrice" placeholder="Will calculate break-even automatically" step="0.01"
+                    min="0">
+            </div>
+
+            <div class="results">
+                <div class="result-item">
+                    <span class="result-label">Transaction Fee Amount:</span>
+                    <span class="result-value" id="feeAmount">₱0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Total Cost:</span>
+                    <span class="result-value" id="totalCost">₱0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Profit Amount:</span>
+                    <span class="result-value break-even" id="profitAmount">₱0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Profit Percentage:</span>
+                    <span class="result-value break-even" id="profitPercentage">0%</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="resetButton"></label>
+                <button class="toggle-btn" id="resetButton">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add the best items toggle button -->
+    <button class="best-items-toggle" id="bestItemsToggle">
+        <i class="fas fa-list"></i>
+    </button>
+
+    <!-- Add the best items sidebar -->
+    <div class="best-items-sidebar" id="bestItemsSidebar">
+        <div class="best-items-container">
+            <h1><i class="fas fa-star"></i> Best Items to Buy</h1>
+            <p style="text-align: center; margin-bottom: 20px; color: #a0a0ff; font-size: 0.9rem;">
+                Top profitable items based on last week's market data
+            </p>
+
+            <div class="best-items-header">
+                <div>Item</div>
+                <div>Actual</div>
+                <div>Profit</div>
+                <div>Margin</div>
+            </div>
+
+            <div class="best-items-list" id="bestItemsList">
+                <div class="loading-items">
+                    <div class="loading-spinner"></div>
+                    <div>Loading items...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
