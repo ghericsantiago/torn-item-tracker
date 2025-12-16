@@ -22,10 +22,16 @@ const DOM_ELEMENTS = {
   calculatorToggle: document.getElementById("calculatorToggle"),
   calculatorSidebar: document.getElementById("calculatorSidebar"),
   autoRefreshToggle: document.getElementById("autoRefreshToggle"),
+  bestItemsToggle: document.getElementById("bestItemsToggle"), // Keep this
+  bestItemsSidebar: document.getElementById("bestItemsSidebar"), // Keep this
+  bestItemsList: document.getElementById("bestItemsList"), // Keep this
 };
 
 let refreshInterval = null;
 const REFRESH_INTERVAL_MS = 60000; // 1 minute
+
+// Add this global variable to store item mappings
+let ITEM_MAPPINGS = {}; // {itemName: itemId}
 
 // Determine endpoint based on timeframe
 const API_CONFIG = {
@@ -161,12 +167,18 @@ function initProfitCalculator() {
 async function initAutocomplete() {
   try {
     const response = await fetch(
-      `${API_CONFIG.BASE_URL}?endpoint=${API_CONFIG.ENDPOINTS.UNIQUE_ITEM_MARKET}?select=name`,
+      `${API_CONFIG.BASE_URL}?endpoint=${API_CONFIG.ENDPOINTS.UNIQUE_ITEM_MARKET}?select=name,item_id`,
       API_CONFIG.REQUEST_CONFIG
     );
     const data = await response.json();
-    const uniqueItemName = new Set(data.map((e) => e.name));
-    CHART_CONFIG.itemNames = [...uniqueItemName];
+
+    // Store item mappings
+    data.forEach((item) => {
+      ITEM_MAPPINGS[item.name] = item.item_id;
+    });
+
+    const uniqueItemNames = data.map((e) => e.name);
+    CHART_CONFIG.itemNames = [...new Set(uniqueItemNames)];
 
     let currentFocus;
 
@@ -194,6 +206,7 @@ async function initAutocomplete() {
         itemElement.innerHTML += `<input type='hidden' value='${item}'>`;
         itemElement.addEventListener("click", () => {
           DOM_ELEMENTS.itemName.value = item;
+          populateItemId(item); // Call function to populate item ID
           closeAllLists();
         });
         autocompleteList.appendChild(itemElement);
@@ -221,8 +234,27 @@ async function initAutocomplete() {
           e.preventDefault();
           if (currentFocus > -1 && items) {
             items[currentFocus].click();
+          } else if (this.value && ITEM_MAPPINGS[this.value]) {
+            // If user types exact name and presses Enter
+            populateItemId(this.value);
           }
           break;
+      }
+    });
+
+    // Add change event listener for manual input
+    DOM_ELEMENTS.itemName.addEventListener("change", function (e) {
+      const itemName = this.value.trim();
+      if (itemName && ITEM_MAPPINGS[itemName]) {
+        populateItemId(itemName);
+      }
+    });
+
+    // Add blur event listener
+    DOM_ELEMENTS.itemName.addEventListener("blur", function (e) {
+      const itemName = this.value.trim();
+      if (itemName && ITEM_MAPPINGS[itemName]) {
+        populateItemId(itemName);
       }
     });
 
@@ -253,6 +285,17 @@ async function initAutocomplete() {
     document.addEventListener("click", (e) => closeAllLists(e.target));
   } catch (error) {
     console.error("Error initializing autocomplete:", error);
+  }
+}
+
+/**
+ * Add this new function to populate item ID
+ */
+function populateItemId(itemName) {
+  if (ITEM_MAPPINGS[itemName]) {
+    DOM_ELEMENTS.itemId.value = ITEM_MAPPINGS[itemName];
+  } else {
+    DOM_ELEMENTS.itemId.value = ""; // Clear if item name not found
   }
 }
 
@@ -309,6 +352,19 @@ function setupEventListeners() {
     )
       ? '<i class="fas fa-times"></i>'
       : '<i class="fas fa-calculator"></i>';
+  });
+
+  // Keep the best items toggle event listener
+  DOM_ELEMENTS.bestItemsToggle.addEventListener("click", function () {
+    DOM_ELEMENTS.bestItemsSidebar.classList.toggle("visible");
+    this.innerHTML = DOM_ELEMENTS.bestItemsSidebar.classList.contains("visible")
+      ? '<i class="fas fa-times"></i>'
+      : '<i class="fas fa-list"></i>';
+
+    // Load items when sidebar is opened for the first time
+    if (DOM_ELEMENTS.bestItemsSidebar.classList.contains("visible")) {
+      fetchBestItems();
+    }
   });
 }
 
@@ -722,7 +778,7 @@ async function renderCandlestickChart() {
 
   try {
     const response = await fetch(
-      `${API_CONFIG.BASE_URL}?endpoint=
+      `${API_CONFIG.BASE_URL}?endpoint=${
         API_CONFIG.ENDPOINTS.ITEM_MARKET_DAY_TRADE
       }&${urlParamsFormatter(params)}`,
       API_CONFIG.REQUEST_CONFIG
@@ -919,7 +975,9 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
-// Add this function to toggle auto-refresh
+/**
+ * Toggle auto-refresh
+ */
 function toggleAutoRefresh() {
   if (refreshInterval) {
     // If interval exists, turn it off
@@ -951,33 +1009,17 @@ function toggleAutoRefresh() {
   }
 }
 
-// Add this to your existing DOM_ELEMENTS object
-DOM_ELEMENTS.bestItemsToggle = document.getElementById("bestItemsToggle");
-DOM_ELEMENTS.bestItemsSidebar = document.getElementById("bestItemsSidebar");
-DOM_ELEMENTS.bestItemsList = document.getElementById("bestItemsList");
-
-// Add this to your setupEventListeners function
-DOM_ELEMENTS.bestItemsToggle.addEventListener("click", function () {
-  DOM_ELEMENTS.bestItemsSidebar.classList.toggle("visible");
-  this.innerHTML = DOM_ELEMENTS.bestItemsSidebar.classList.contains("visible")
-    ? '<i class="fas fa-times"></i>'
-    : '<i class="fas fa-list"></i>';
-
-  // Load items when sidebar is opened for the first time
-  if (DOM_ELEMENTS.bestItemsSidebar.classList.contains("visible")) {
-    fetchBestItems();
-  }
-});
-
-// Add this new function to fetch best items
+/**
+ * Add this new function to fetch best items
+ */
 async function fetchBestItems() {
   try {
     DOM_ELEMENTS.bestItemsList.innerHTML = `
-                    <div class="loading-items">
-                        <div class="loading-spinner"></div>
-                        <div>Loading items...</div>
-                    </div>
-                `;
+      <div class="loading-items">
+        <div class="loading-spinner"></div>
+        <div>Loading items...</div>
+      </div>
+    `;
 
     const response = await fetch(
       `${API_CONFIG.BASE_URL}?endpoint=${API_CONFIG.ENDPOINTS.BEST_ITEMS_TO_BUY}`,
@@ -987,10 +1029,10 @@ async function fetchBestItems() {
 
     if (data.length === 0) {
       DOM_ELEMENTS.bestItemsList.innerHTML = `
-                        <div style="text-align: center; color: #a0a0ff; padding: 20px;">
-                            No profitable items found
-                        </div>
-                    `;
+        <div style="text-align: center; color: #a0a0ff; padding: 20px;">
+          No profitable items found
+        </div>
+      `;
       return;
     }
 
@@ -1010,25 +1052,23 @@ async function fetchBestItems() {
       row.className = "best-item-row";
 
       row.innerHTML = `
-                        <div>
-                            <div class="best-item-name">${item.name}</div>
-                            <div class="best-item-id">ID: ${item.item_id}</div>
-                        </div>
-                        <div class="best-item-price">${formatPrice(
-                          item.avg_actual_price_last_week
-                        )}</div>
-                        <div class="best-item-profit">${formatPrice(
-                          item.margin
-                        )}</div>
-                        <div class="best-item-margin">+${
-                          item.margin_percent
-                        }%</div>
-                    `;
+        <div>
+          <div class="best-item-name">${item.name}</div>
+          <div class="best-item-id">ID: ${item.item_id}</div>
+        </div>
+        <div class="best-item-price">${formatPrice(
+          item.avg_actual_price_last_week
+        )}</div>
+        <div class="best-item-profit">${formatPrice(item.margin)}</div>
+        <div class="best-item-margin">+${item.margin_percent}%</div>
+      `;
 
       // Add click event to populate filters with this item
       row.addEventListener("click", () => {
         DOM_ELEMENTS.itemName.value = item.name;
         DOM_ELEMENTS.itemId.value = item.item_id;
+        // Also update the ITEM_MAPPINGS if needed
+        ITEM_MAPPINGS[item.name] = item.item_id;
         DOM_ELEMENTS.bestItemsSidebar.classList.remove("visible");
         DOM_ELEMENTS.bestItemsToggle.innerHTML = '<i class="fas fa-list"></i>';
         fetchData();
@@ -1039,10 +1079,10 @@ async function fetchBestItems() {
   } catch (error) {
     console.error("Error fetching best items:", error);
     DOM_ELEMENTS.bestItemsList.innerHTML = `
-                    <div style="text-align: center; color: #ff7e5f; padding: 20px;">
-                        Error loading items. Please try again.
-                    </div>
-                `;
+      <div style="text-align: center; color: #ff7e5f; padding: 20px;">
+        Error loading items. Please try again.
+      </div>
+    `;
   }
 }
 
