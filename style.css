@@ -1185,3 +1185,512 @@ select {
 .best-item-row {
     animation: fadeIn 0.3s ease-out;
 }
+
+/* Profit Calculator Mobile Optimizations */
+.calculator-sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    width: 450px;
+    max-width: 95vw;
+    background: rgba(30, 30, 50, 0.95);
+    backdrop-filter: blur(15px);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.4);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    overflow-y: auto;
+    padding: 15px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.calculator-sidebar.visible {
+    transform: translateX(0);
+}
+
+.calculator-container {
+    color: #f0f0f0;
+    padding: 5px;
+}
+
+.calculator-container h1 {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    margin-bottom: 15px;
+    color: #ff7e5f;
+    text-align: center;
+    line-height: 1.3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.calculator-container h1 i {
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+}
+
+.form-group {
+    margin-bottom: 18px;
+    position: relative;
+}
+
+.calculator-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #e0e0ff;
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    line-height: 1.4;
+}
+
+.calculator-container input {
+    width: 100%;
+    padding: 14px 12px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(20, 20, 40, 0.7);
+    color: white;
+    font-size: clamp(1rem, 3vw, 1.1rem);
+    transition: all 0.3s ease;
+    -webkit-appearance: none;
+}
+
+.calculator-container input:focus {
+    outline: none;
+    border-color: #ff7e5f;
+    box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.2);
+    background: rgba(20, 20, 40, 0.9);
+}
+
+.calculator-container input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: clamp(0.9rem, 3vw, 1rem);
+}
+
+/* Number input spinner adjustments */
+.calculator-container input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.calculator-container input[type="number"]::-webkit-outer-spin-button,
+.calculator-container input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Results section */
+.results {
+    margin-top: 25px;
+    background: rgba(20, 20, 40, 0.7);
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 24px;
+}
+
+.result-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.result-label {
+    font-weight: 500;
+    color: #e0e0ff;
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    line-height: 1.3;
+}
+
+.result-value {
+    font-weight: 600;
+    font-size: clamp(1rem, 3vw, 1.1rem);
+    text-align: right;
+    line-height: 1.3;
+    word-break: break-all;
+}
+
+/* Color coding for results */
+#feeAmount {
+    color: #ff9800;
+}
+
+#totalCost {
+    color: #2196f3;
+}
+
+.profit-positive {
+    color: #00c853 !important;
+}
+
+.profit-negative {
+    color: #ff5252 !important;
+}
+
+.break-even {
+    color: #ff9800 !important;
+}
+
+/* Reset button */
+#resetButton {
+    width: 100%;
+    padding: 16px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    color: white;
+    font-weight: 600;
+    font-size: clamp(1rem, 3vw, 1.1rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#resetButton:hover,
+#resetButton:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(255, 126, 95, 0.4);
+}
+
+#resetButton:active {
+    transform: translateY(0);
+}
+
+#resetButton i {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+}
+
+/* Toggle button positioning */
+.calculator-toggle {
+    position: fixed;
+    right: 15px;
+    top: 20px;
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 101;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.calculator-toggle:hover,
+.calculator-toggle:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 126, 95, 0.4);
+}
+
+.calculator-toggle:active {
+    transform: translateY(0);
+}
+
+/* Input with units */
+.input-with-unit {
+    position: relative;
+}
+
+.input-with-unit input {
+    padding-right: 40px;
+}
+
+.input-unit {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    pointer-events: none;
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+    .calculator-sidebar {
+        width: 350px;
+        padding: 12px;
+    }
+
+    .calculator-toggle {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+        right: 10px;
+        top: 15px;
+    }
+
+    .calculator-container h1 {
+        margin-bottom: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .calculator-container input {
+        padding: 12px 10px;
+    }
+
+    .results {
+        margin-top: 20px;
+        padding: 15px;
+    }
+
+    .result-item {
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+    }
+
+    #resetButton {
+        padding: 14px;
+        min-height: 45px;
+    }
+}
+
+@media (max-width: 600px) {
+    .calculator-sidebar {
+        width: 100%;
+        max-width: 100vw;
+        padding: 10px;
+    }
+
+    .calculator-container {
+        padding: 0;
+    }
+
+    .calculator-container h1 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .calculator-container h1 i {
+        font-size: 1.4rem;
+    }
+
+    .calculator-container label {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+    }
+
+    .calculator-container input {
+        padding: 12px 10px;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+
+    .calculator-container input::placeholder {
+        font-size: 0.9rem;
+    }
+
+    .results {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .result-label {
+        font-size: 0.9rem;
+    }
+
+    .result-value {
+        font-size: 0.95rem;
+    }
+
+    .result-item {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+    }
+
+    #resetButton {
+        padding: 12px;
+        font-size: 1rem;
+        min-height: 44px;
+        border-radius: 8px;
+    }
+
+    .calculator-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        right: 8px;
+        top: 10px;
+    }
+}
+
+@media (max-width: 400px) {
+    .calculator-container h1 {
+        font-size: 1.2rem;
+    }
+
+    .calculator-container label {
+        font-size: 0.9rem;
+    }
+
+    .calculator-container input {
+        padding: 10px 8px;
+        font-size: 0.95rem;
+    }
+
+    .result-label {
+        font-size: 0.85rem;
+    }
+
+    .result-value {
+        font-size: 0.9rem;
+    }
+
+    #resetButton {
+        padding: 10px;
+        font-size: 0.95rem;
+        min-height: 42px;
+    }
+}
+
+/* Touch-friendly scrollbars */
+.calculator-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.calculator-sidebar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.calculator-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 126, 95, 0.5);
+    border-radius: 3px;
+}
+
+.calculator-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 126, 95, 0.7);
+}
+
+/* Improve touch targets */
+.calculator-container input,
+#resetButton {
+    min-height: 44px;
+    /* Apple's recommended minimum touch target size */
+}
+
+/* Focus states for accessibility */
+.calculator-container input:focus,
+#resetButton:focus {
+    outline: 2px solid rgba(255, 126, 95, 0.6);
+    outline-offset: 2px;
+}
+
+/* Loading state for calculator */
+.calculator-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    gap: 12px;
+    background: rgba(20, 20, 40, 0.6);
+    border-radius: 10px;
+    margin: 10px 0;
+}
+
+.calculator-spinner {
+    width: 35px;
+    height: 35px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #ff7e5f;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Currency symbol styling */
+.currency-symbol {
+    color: #ff7e5f;
+    font-weight: 600;
+}
+
+/* Input validation states */
+.calculator-container input:invalid {
+    border-color: #ff5252;
+}
+
+.calculator-container input:valid {
+    border-color: rgba(0, 200, 83, 0.3);
+}
+
+/* Animation for results update */
+@keyframes highlightUpdate {
+    0% {
+        background-color: rgba(255, 126, 95, 0.2);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+.result-item.updated {
+    animation: highlightUpdate 0.5s ease;
+}
+
+/* Responsive grid for calculator sections */
+@media (min-width: 768px) {
+    .calculator-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .results {
+        grid-column: span 2;
+    }
+}
+
+/* Prevent iOS zoom on input focus */
+@media (max-width: 768px) {
+    .calculator-container input {
+        font-size: 16px !important;
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+.calculator-container input,
+#resetButton,
+.result-item {
+    transition: all 0.2s ease;
+}
+
+/* Dark mode compatibility */
+@media (prefers-color-scheme: dark) {
+    .calculator-sidebar {
+        background: rgba(15, 15, 25, 0.95);
+    }
+
+    .calculator-container input {
+        background: rgba(10, 10, 20, 0.8);
+    }
+
+    .results {
+        background: rgba(10, 10, 20, 0.8);
+    }
+}
