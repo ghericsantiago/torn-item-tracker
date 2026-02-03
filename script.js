@@ -393,6 +393,9 @@ async function fetchData(callback) {
       </div>
     `;
 
+    // Add 1 day to endDate to include the entire end day (timezone-safe)
+    endDate.setUTCDate(endDate.getUTCDate() + 1);
+
     // Handle time selection
     if (CHART_CONFIG.currentTimeframe !== "day") {
       if (DOM_ELEMENTS.startTime.value) {
@@ -625,15 +628,15 @@ function renderChart() {
                 const date = new Date(context.parsed.x);
                 return [
                   `Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`,
-                  `Price: $${context.parsed.y.toFixed(2)}`,
+                  `Price: $${context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`,
                 ];
               }
               if (context.dataset.label.includes("Average Price")) {
-                return [`Price: $${context.parsed.y.toFixed(2)}`];
+                return [`Price: $${context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`];
               }
 
               return [
-                `Price: $${context.parsed.y.toFixed(2)}`,
+                `Price: $${context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`,
                 `Quantity: ${JSON.stringify(context.raw.z)}`,
               ];
             },
@@ -683,7 +686,7 @@ function renderChart() {
           grid: { color: "rgba(255, 255, 255, 0.1)" },
           ticks: {
             color: "#f0f0f0",
-            callback: (value) => `$${value}`,
+            callback: (value) => `$${value.toLocaleString()}`,
             font: { size: isMobile ? 8 : 10 },
           },
           title: {
